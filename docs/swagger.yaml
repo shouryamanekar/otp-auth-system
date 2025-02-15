@@ -1,0 +1,401 @@
+definitions:
+  handlers.DeviceRequest:
+    properties:
+      device_fingerprint:
+        type: string
+    type: object
+  handlers.LoginRequest:
+    properties:
+      mobile:
+        type: string
+    type: object
+  handlers.RegisterRequest:
+    properties:
+      mobile:
+        type: string
+    type: object
+  handlers.ResendOTPRequest:
+    properties:
+      mobile:
+        type: string
+    type: object
+  handlers.VerifyOTPRequest:
+    properties:
+      mobile:
+        type: string
+      otp:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: OTP Authentication API
+  version: "1.0"
+paths:
+  /user/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a registered device from the user's account
+      parameters:
+      - description: 'Device Fingerprint '
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeviceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerToken: []
+      summary: Remove a specific device
+      tags:
+      - Devices
+  /user/devices/all:
+    delete:
+      consumes:
+      - application/json
+      description: Logs out all devices except the currently active one
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerToken: []
+      summary: Remove all devices except current
+      tags:
+      - Devices
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Sends OTP to the registered mobile number for authentication
+      parameters:
+      - description: User's mobile number
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user with OTP
+      tags:
+      - Authentication
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidates JWT token from Redis for the current device
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerToken: []
+      summary: Logout from current device
+      tags:
+      - Authentication
+  /logout/all:
+    post:
+      consumes:
+      - application/json
+      description: Invalidates JWT tokens for all devices of the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerToken: []
+      summary: Logout from all devices
+      tags:
+      - Authentication
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user and sends OTP via SMS
+      parameters:
+      - description: User's mobile number
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - Authentication
+  /resend-otp:
+    post:
+      consumes:
+      - application/json
+      description: Requests a new OTP if the previous one expired
+      parameters:
+      - description: User's mobile number
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ResendOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Resend OTP
+      tags:
+      - Authentication
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Returns the authenticated user's mobile number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerToken: []
+      summary: Get current user details
+      tags:
+      - User
+  /user/devices:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of devices where the user has logged in
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerToken: []
+      summary: Get registered devices
+      tags:
+      - Devices
+  /verify:
+    post:
+      consumes:
+      - application/json
+      description: Confirms OTP and authenticates user
+      parameters:
+      - description: User's mobile number and OTP
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.VerifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Verify OTP
+      tags:
+      - Authentication
+securityDefinitions:
+  BearerToken:
+    description: Use JWT token to authorize API requests.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
